@@ -21,21 +21,21 @@ chai.use(chaiHttp);
 // generate placeholder values for author, title, content
 // and then we insert that data into mongo
 function seedPostData() {
-	console.info('seeding blog post data');
-	const seedData = [];
+  console.info('seeding blog post data');
+  const seedData = [];
 
-	for (let i=1; i<=10; i++) {
-		seedData.push(generatePostData());
-	}
-	//this will return a promise
-	return Post.insertMany(seedData);
+  for (let i=1; i<=10; i++) {
+    seedData.push(generatePostData());
+  }
+  //this will return a promise
+  return Post.insertMany(seedData);
 }
 
 //used to generate data to put in db
 function generateTitle() {
-	const titles = [
-	'A Very Cool Blog Post', 'NotSoCoolPost', 'Testing 1, 2, 3'];
-	return titles[Math.floor(Math.random() * titles.length)];
+  const titles = [
+  'A Very Cool Blog Post', 'NotSoCoolPost', 'Testing 1, 2, 3'];
+  return titles[Math.floor(Math.random() * titles.length)];
 }
 
 
@@ -46,8 +46,8 @@ function generateTitle() {
 function generatePostData() {
   return {
     author: {
-    	firstName: faker.name.firstName(),
-    	lastName: faker.name.lastName()
+      firstName: faker.name.firstName(),
+      lastName: faker.name.lastName()
     },
     title: generateTitle(),
     content: faker.lorem.sentences(),
@@ -66,14 +66,14 @@ function tearDownDb() {
 describe('Posts API resource', function() {
   // we need each of these hook functions to return a promise
   // otherwise we'd need to call a `done` callback. `runServer`,
-  // `seedRestaurantData` and `tearDownDb` each return a promise,
+  // `seedPostData` and `tearDownDb` each return a promise,
   // so we return the value returned by these function calls.
   before(function() {
     return runServer(TEST_DATABASE_URL);
   });
 
   beforeEach(function() {
-    return seedRestaurantData();
+    return seedPostData();
   });
 
   afterEach(function() {
@@ -84,37 +84,47 @@ describe('Posts API resource', function() {
     return closeServer();
   });
 
-	// note the use of nested `describe` blocks.
- 	// this allows us to make clearer, more discrete tests that focus
- 	// on proving something small
-	describe('GET endpoint', function() {
+  // note the use of nested `describe` blocks.
+  // this allows us to make clearer, more discrete tests that focus
+  // on proving something small
+  describe('GET endpoint', function() {
 
- 		it('should return all existing posts', function() {
-      	// strategy:
-      	//    1. get back all posts returned by by GET request to `/posts`
-      	//    2. prove res has right status, data type
-      	//    3. prove the number of posts we got back is equal to number
-      	//       in db.
-      	//
-      	// need to have access to mutate and access `res` across
-      	// `.then()` calls below, so declare it here so can modify in place
-      	let res;
-      	return chai.request(app)
-      		.get('/posts')
-      		.then(function(_res) {
-      			// so subsequent .then blocks can access response object
-      			res = _res;
-      			expect(res).to.have.status(200);
-      			expect(res.body.posts).to.have.lengthOf.at.least(1);
-          		return Posts.count();
-        	})
-        	.then(function(count) {
-          	expect(res.body.posts).to.have.lengthOf(count);
-        	});
-    	});
- 	});
+    it('should return all existing posts', function() {
+        // strategy:
+        //    1. get back all posts returned by by GET request to `/posts`
+        //    2. prove res has right status, data type
+        //    3. prove the number of posts we got back is equal to number
+        //       in db.
+        //
+        // need to have access to mutate and access `res` across
+        // `.then()` calls below, so declare it here so can modify in place
+        let res;
+        return chai.request(app)
+          .get('/posts')
+          .then(function(_res) {
+            // so subsequent .then blocks can access response object
+            res = _res;
+            expect(res).to.have.status(200);
+            expect(res.body.posts).to.have.lengthOf.at.least(1);
+              return Posts.count();
+          })
+          .then(function(count) {
+            expect(res.body.posts).to.have.lengthOf(count);
+          });
+      });
+  });
 });
  
+
+
+
+
+
+
+
+
+
+
 
 
 
